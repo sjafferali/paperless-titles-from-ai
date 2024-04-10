@@ -1,6 +1,11 @@
 # paperless-titles-from-ai
 
-This is a project to generate meaningful titles for ingested paperless documents using AI.
+This is a project to generate meaningful titles for ingested [paperless](https://docs.paperless-ngx.com/) documents using AI. Sends the OCR text of the document to the OpenAI API and generates a title for the document. The title is then saved to the document's metadata.
+
+## Examples of Generated Titles
+- taxreturntranscript2022
+- aigclaims_check_20230313
+- prosharesultrabloombergtax2023
 
 ## Setup
 
