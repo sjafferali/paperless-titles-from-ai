@@ -22,7 +22,7 @@ for those documents that can be used in our digital archiving system. Your respo
 11. No additional formatting should be applied to the response.
 
 ===Input
-The current date can always going to be the first date in the context. The rest of the context is the truncated OCR text from the scanned document.
+The current date is always going to be the first date in the context. The rest of the context is the truncated OCR text from the scanned document.
 
 
 ===Response Format
