@@ -9,7 +9,7 @@ import requests
 from openai import OpenAI
 
 from cfg import (CHARACTER_LIMIT, OPENAI_API_KEY, OPENAPI_MODEL, PAPERLESS_API_KEY, PAPERLESS_URL, PROMPT, TIMEOUT)
-from helpers import make_request
+from helpers import make_request, strtobool
 
 
 def check_args(doc_pk):
@@ -23,13 +23,13 @@ def check_args(doc_pk):
             sys.exit(1)
 
 
-def generate_title(content):
+def generate_title(content, openai_model, openai_key):
     now = datetime.now()
     messages = [
         {"role": "system", "content": PROMPT},
         {"role": "user", "content": now.strftime("%m/%d/%Y") + " ".join(content[:CHARACTER_LIMIT].split())}
     ]
-    response = query_openai(model=OPENAPI_MODEL, messages=messages, mock=False)
+    response = query_openai(model=openai_model, messages=messages, openai_key=openai_key, mock=False)
     try:
         answer = response.choices[0].message.content
     except:
@@ -37,8 +37,8 @@ def generate_title(content):
     return answer
 
 
-def query_openai(model, messages, **kwargs):
-    client = OpenAI(api_key=OPENAI_API_KEY)
+def query_openai(model, messages, openai_key, **kwargs):
+    client = OpenAI(api_key=openai_key)
     args_to_remove = ['mock', 'completion_tokens']
 
     for arg in args_to_remove:
@@ -52,9 +52,9 @@ def query_openai(model, messages, **kwargs):
         **kwargs)
 
 
-def _set_auth_tokens(session: requests.Session):
+def set_auth_tokens(session: requests.Session, api_key):
     session.headers.update(
-        {"Authorization": f"Token {PAPERLESS_API_KEY}"}
+        {"Authorization": f"Token {api_key}"}
     )
 
 
@@ -66,8 +66,8 @@ def parse_response(response):
     return data['title'], data.get('explanation', "")
 
 
-def update_document_title(sess, doc_pk, title):
-    url = PAPERLESS_URL + f"/api/documents/{doc_pk}/"
+def update_document_title(sess, doc_pk, title, paperless_url):
+    url = paperless_url + f"/api/documents/{doc_pk}/"
     body = {"title": title}
     resp = make_request(sess, url, "PATCH", body=body)
     if not resp:
@@ -76,15 +76,42 @@ def update_document_title(sess, doc_pk, title):
     logging.info(f"updated document {doc_pk} title to {title}")
 
 
+def process_single_document(
+        sess,
+        doc_pk,
+        doc_title,
+        doc_contents,
+        paperless_url,
+        openai_model,
+        openai_key,
+        dry_run=False):
+    response = generate_title(doc_contents, openai_model, openai_key)
+    if not response:
+        logging.error(f"could not generate title for document {doc_pk}")
+        return
+    title, explain = parse_response(response)
+    if not title:
+        logging.error(f"could not parse response for document {doc_pk}: {response}")
+        return
+    logging.info(f"will update document {doc_pk} title from {doc_title} to: {title} because {explain}")
+
+    # Update the document
+    if not dry_run:
+        update_document_title(sess, doc_pk, title, paperless_url)
+
+
+def get_single_document(sess, doc_pk, paperless_url):
+    url = paperless_url + f"/api/documents/{doc_pk}/"
+    return make_request(sess, url, "GET")
+
+
 def run_for_document(doc_pk):
     check_args(doc_pk)
 
     with requests.Session() as sess:
-        _set_auth_tokens(sess)
+        set_auth_tokens(sess, PAPERLESS_API_KEY)
 
-        # Query the API for the document info
-        info_url = PAPERLESS_URL + f"/api/documents/{doc_pk}/"
-        doc_info = make_request(sess, info_url, "GET")
+        doc_info = get_single_document(sess, doc_pk, PAPERLESS_URL)
         if not isinstance(doc_info, dict):
             logging.error(f"could not retrieve document info for document {doc_pk}")
             return
@@ -92,18 +119,15 @@ def run_for_document(doc_pk):
         doc_contents = doc_info["content"]
         doc_title = doc_info["title"]
 
-        response = generate_title(doc_contents)
-        if not response:
-            logging.error(f"could not generate title for document {doc_pk}")
-            return
-        title, explain = parse_response(response)
-        if not title:
-            logging.error(f"could not parse response for document {doc_pk}: {response}")
-            return
-        logging.info(f"will update document {doc_pk} title from {doc_title} to: {title} because {explain}")
-
-        # Update the document
-        update_document_title(sess, doc_pk, title)
+        process_single_document(
+            sess,
+            doc_pk,
+            doc_title,
+            doc_contents,
+            PAPERLESS_URL,
+            OPENAPI_MODEL,
+            OPENAI_API_KEY,
+            DRY_RUN)
 
 
 if __name__ == '__main__':
@@ -111,4 +135,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p',
                         level=LOGLEVEL)
+    DRY_RUN = strtobool(os.getenv("DRY_RUN", "false"))
+    if DRY_RUN:
+        logging.info("DRY_RUN ENABLED")
     run_for_document(os.getenv("DOCUMENT_ID"))

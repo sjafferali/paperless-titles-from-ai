@@ -5,6 +5,13 @@ import traceback
 from cfg import TIMEOUT
 
 
+def strtobool(value: str) -> bool:
+    value = value.lower()
+    if value in ("y", "yes", "on", "1", "true", "t"):
+        return True
+    return False
+
+
 def make_request(sess, url, method, body=None, params=None, headers=None):
     if body is not None:
         body = json.dumps(body)
