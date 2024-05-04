@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 dotenv_path = Path('/usr/src/paperless/scripts/paperless-titles-from-ai/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
-PROMPT = """You are a AI model that is responsible for analyzing OCR text from scanned documents and generating titles 
+DEFAULT_PROMPT = """You are a AI model that is responsible for analyzing OCR text from scanned documents and generating titles
 for those documents that can be used in our digital archiving system. Your response should ONLY be based on the given context and follow the response guidelines and format instructions.
 
 ===Response Guidelines 
@@ -29,12 +29,9 @@ The current date is always going to be the first date in the context. The rest o
 {"title": "A valid title.", "explanation": ""}
 """
 
+PROMPT = os.getenv("OVERRIDE_PROMPT", DEFAULT_PROMPT)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAPI_MODEL = os.getenv("OPENAPI_MODEL", "gpt-4-turbo")
-
-CHARACTER_LIMIT = 45000
-if 'gpt-4' in OPENAPI_MODEL:
-    CHARACTER_LIMIT = 200000
 
 PAPERLESS_URL = os.getenv("PAPERLESS_URL", "http://localhost:8000")
 PAPERLESS_API_KEY = os.getenv("PAPERLESS_API_KEY")

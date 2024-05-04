@@ -35,3 +35,42 @@ services:
     # ...
     PAPERLESS_POST_CONSUME_SCRIPT: /usr/src/paperless/scripts/app/main.py
 ```
+
+## Back-filling Titles on Existing Documents
+To back-fill titles on existing documents, run the helper cli from the project directory:
+
+```bash
+docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] [single|all]
+```
+
+**Arguments**
+
+| Option                | Required | Default                      | Description                                                           |
+|-----------------------|----------|------------------------------|-----------------------------------------------------------------------|
+| --paperlessurl [URL]  | Yes      | https://paperless.local:8080 | Sets the URL of the paperless API endpoint.                           |
+| --paperlesskey [KEY]  | Yes      |                              | Sets the API key to use when authenticating to paperless.             |
+| --openaimodel [MODEL] | No       | gpt-4-turbo                  | Sets the OpenAI model used to generate title.                         |
+| --openaikey [KEY]     | Yes      |                              | Sets the OpenAI key used to generate title.                           |
+| --dry                 | No       | False                        | Enables dry run which only prints out the changes that would be made. |
+| --loglevel [LEVEL]    | No       | INFO                         | Loglevel sets the desired loglevel.                                   |
+
+### To run on all documents
+```bash
+docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] all [filter_args]
+```
+
+**Arguments**
+
+| Option         | Required | Default | Description                                                                                           |
+|----------------|----------|---------|-------------------------------------------------------------------------------------------------------|
+| --exclude [ID] | No       |         | Excludes the document ID specified from being updated. This argument may be specified multiple times. |
+
+### To run on a single document
+```bash
+docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] single (document_id)
+```
+
+## Contact, Support and Contributions
+- Create a GitHub issue for bug reports, feature requests, or questions.
+- Add a ⭐️ star on GitHub.
+- PRs are welcome
