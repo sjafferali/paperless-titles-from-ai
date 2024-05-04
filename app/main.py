@@ -8,15 +8,11 @@ from datetime import datetime
 import requests
 from openai import OpenAI
 
-from cfg import (CHARACTER_LIMIT, OPENAI_API_KEY, OPENAPI_MODEL, PAPERLESS_API_KEY, PAPERLESS_URL, PROMPT, TIMEOUT)
-from helpers import make_request, strtobool
+from cfg import (OPENAI_API_KEY, OPENAPI_MODEL, PAPERLESS_API_KEY, PAPERLESS_URL, PROMPT, TIMEOUT)
+from helpers import make_request, strtobool, get_character_limit
 
 
 def check_args(doc_pk):
-    required_args = [PAPERLESS_API_KEY, PAPERLESS_URL, OPENAI_API_KEY,
-                     OPENAPI_MODEL, doc_pk, CHARACTER_LIMIT, PROMPT,
-                     TIMEOUT]
-
     if not PAPERLESS_API_KEY:
         logging.error("Missing PAPERLESS_API_KEY")
         sys.exit(1)
@@ -32,9 +28,6 @@ def check_args(doc_pk):
     if not doc_pk:
         logging.error("Missing DOCUMENT_ID")
         sys.exit(1)
-    if not CHARACTER_LIMIT:
-        logging.error("Missing CHARACTER_LIMIT")
-        sys.exit(1)
     if not PROMPT:
         logging.error("Missing PROMPT")
         sys.exit(1)
@@ -44,10 +37,11 @@ def check_args(doc_pk):
 
 
 def generate_title(content, openai_model, openai_key):
+    character_limit = get_character_limit(openai_model)
     now = datetime.now()
     messages = [
         {"role": "system", "content": PROMPT},
-        {"role": "user", "content": now.strftime("%m/%d/%Y") + " ".join(content[:CHARACTER_LIMIT].split())}
+        {"role": "user", "content": now.strftime("%m/%d/%Y") + " ".join(content[:character_limit].split())}
     ]
     response = query_openai(model=openai_model, messages=messages, openai_key=openai_key, mock=False)
     try:

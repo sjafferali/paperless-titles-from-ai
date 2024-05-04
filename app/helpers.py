@@ -5,6 +5,12 @@ import traceback
 from cfg import TIMEOUT
 
 
+def get_character_limit(openai_model):
+    if 'gpt-4' in openai_model:
+        return 200000
+    return 45000
+
+
 def strtobool(value: str) -> bool:
     value = value.lower()
     if value in ("y", "yes", "on", "1", "true", "t"):
