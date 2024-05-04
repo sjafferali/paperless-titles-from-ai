@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import json
 import logging
 import os
@@ -10,6 +9,7 @@ import requests
 from openai import OpenAI
 
 from cfg import (CHARACTER_LIMIT, OPENAI_API_KEY, OPENAPI_MODEL, PAPERLESS_API_KEY, PAPERLESS_URL, PROMPT, TIMEOUT)
+from helpers import make_request
 
 
 def check_args(doc_pk):
@@ -66,6 +66,16 @@ def parse_response(response):
     return data['title'], data.get('explanation', "")
 
 
+def update_document_title(sess, doc_pk, title):
+    url = PAPERLESS_URL + f"/api/documents/{doc_pk}/"
+    body = {"title": title}
+    resp = make_request(sess, url, "PATCH", body=body)
+    if not resp:
+        logging.error(f"could not update document {doc_pk} title to {title}")
+        return
+    logging.info(f"updated document {doc_pk} title to {title}")
+
+
 def run_for_document(doc_pk):
     check_args(doc_pk)
 
@@ -73,11 +83,12 @@ def run_for_document(doc_pk):
         _set_auth_tokens(sess)
 
         # Query the API for the document info
-        doc_info_resp = sess.get(
-            PAPERLESS_URL + f"/api/documents/{doc_pk}/", timeout=TIMEOUT
-        )
-        doc_info_resp.raise_for_status()
-        doc_info = doc_info_resp.json()
+        info_url = PAPERLESS_URL + f"/api/documents/{doc_pk}/"
+        doc_info = make_request(sess, info_url, "GET")
+        if not isinstance(doc_info, dict):
+            logging.error(f"could not retrieve document info for document {doc_pk}")
+            return
+
         doc_contents = doc_info["content"]
         doc_title = doc_info["title"]
 
@@ -92,14 +103,7 @@ def run_for_document(doc_pk):
         logging.info(f"will update document {doc_pk} title from {doc_title} to: {title} because {explain}")
 
         # Update the document
-        resp = sess.patch(
-            PAPERLESS_URL + f"/api/documents/{doc_pk}/",
-            json={"title": title},
-            timeout=TIMEOUT,
-        )
-        resp.raise_for_status()
-
-        logging.info(f"updated document {doc_pk} title to {title}")
+        update_document_title(sess, doc_pk, title)
 
 
 if __name__ == '__main__':
