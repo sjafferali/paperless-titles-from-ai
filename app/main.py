@@ -17,10 +17,30 @@ def check_args(doc_pk):
                      OPENAPI_MODEL, doc_pk, CHARACTER_LIMIT, PROMPT,
                      TIMEOUT]
 
-    for arg in required_args:
-        if not arg:
-            logging.error("Missing required argument")
-            sys.exit(1)
+    if not PAPERLESS_API_KEY:
+        logging.error("Missing PAPERLESS_API_KEY")
+        sys.exit(1)
+    if not PAPERLESS_URL:
+        logging.error("Missing PAPERLESS_URL")
+        sys.exit(1)
+    if not OPENAI_API_KEY:
+        logging.error("Missing OPENAI_API_KEY")
+        sys.exit(1)
+    if not OPENAPI_MODEL:
+        logging.error("Missing OPENAPI_MODEL")
+        sys.exit(1)
+    if not doc_pk:
+        logging.error("Missing DOCUMENT_ID")
+        sys.exit(1)
+    if not CHARACTER_LIMIT:
+        logging.error("Missing CHARACTER_LIMIT")
+        sys.exit(1)
+    if not PROMPT:
+        logging.error("Missing PROMPT")
+        sys.exit(1)
+    if not TIMEOUT:
+        logging.error("Missing TIMEOUT")
+        sys.exit(1)
 
 
 def generate_title(content, openai_model, openai_key):
