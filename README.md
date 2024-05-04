@@ -43,7 +43,8 @@ To back-fill titles on existing documents, run the helper cli from the project d
 docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] [single|all]
 ```
 
-### Arguments
+**Arguments**
+
 | Option                | Required | Default                      | Description                                                           |
 |-----------------------|----------|------------------------------|-----------------------------------------------------------------------|
 | --paperlessurl [URL]  | Yes      | https://paperless.local:8080 | Sets the URL of the paperless API endpoint.                           |
@@ -57,6 +58,8 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] [single|a
 ```bash
 docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] all [filter_args]
 ```
+
+**Arguments**
 
 | Option         | Required | Default | Description                                                                                           |
 |----------------|----------|---------|-------------------------------------------------------------------------------------------------------|
