@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-dotenv_path = Path('/usr/src/paperless/scripts/paperless-titles-from-ai/.env')
+dotenv_path = Path('/usr/src/paperless/scripts/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
 DEFAULT_PROMPT = """You are a AI model that is responsible for analyzing OCR text from scanned documents and generating titles
