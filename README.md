@@ -36,6 +36,8 @@ services:
     PAPERLESS_POST_CONSUME_SCRIPT: /usr/src/paperless/scripts/app/main.py
 ```
 
+The init folder (used to ensure open package is installed) must be owned by root.
+
 ## Back-filling Titles on Existing Documents
 To back-fill titles on existing documents, run the helper cli from the project directory:
 
@@ -49,7 +51,7 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] [single|a
 |-----------------------|----------|------------------------------|-----------------------------------------------------------------------|
 | --paperlessurl [URL]  | Yes      | https://paperless.local:8080 | Sets the URL of the paperless API endpoint.                           |
 | --paperlesskey [KEY]  | Yes      |                              | Sets the API key to use when authenticating to paperless.             |
-| --openaimodel [MODEL] | No       | gpt-4-turbo                  | Sets the OpenAI model used to generate title.                         |
+| --openaimodel [MODEL] | No       | gpt-4-turbo                  | Sets the OpenAI model used to generate title. Full list of supported models available at [models](https://platform.openai.com/docs/models).                         |
 | --openaikey [KEY]     | Yes      |                              | Sets the OpenAI key used to generate title.                           |
 | --dry                 | No       | False                        | Enables dry run which only prints out the changes that would be made. |
 | --loglevel [LEVEL]    | No       | INFO                         | Loglevel sets the desired loglevel.                                   |
@@ -69,6 +71,11 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] all [filt
 ```bash
 docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] single (document_id)
 ```
+
+## Additional Notes
+- The default OpenAI model used for generation is gpt-4-turbo. For a slightly less accurate title generation, but drastically reduced cost, use a GPT 3.5 model.
+- The number of characters of the OCR text that is sent varies depending on the model being used. We try to send the maximum number the model supports to get the best generation we can.
+
 
 ## Contact, Support and Contributions
 - Create a GitHub issue for bug reports, feature requests, or questions.
