@@ -10,7 +10,22 @@ from cfg import PAPERLESS_URL, PAPERLESS_API_KEY, OPENAI_API_KEY, OPENAPI_MODEL
 
 def get_all_documents(sess, paperless_url):
     url = paperless_url + "/api/documents/"
-    return make_request(sess, url, "GET")
+    response = make_request(sess, url, "GET")
+    if not response or not isinstance(response, dict):
+        logging.error("could not retrieve documents")
+        return []
+
+    documents = response.get("results", [])
+
+    while response["next"]:
+        response = make_request(sess, response["next"], "GET")
+        if not response or not isinstance(response, dict):
+            logging.error("could not retrieve documents")
+            return []
+
+        documents.extend(response.get("results", []))
+
+    return documents
 
 
 def run_single_document(args):
@@ -40,11 +55,13 @@ def run_all_documents(args):
         set_auth_tokens(sess, args.paperlesskey)
 
         all_docs = get_all_documents(sess, args.paperlessurl)
-        if not all_docs or not isinstance(all_docs, dict):
+        if not all_docs or not isinstance(all_docs, list):
             logging.error("could not retrieve documents")
             return
 
-        for doc in all_docs.get("results", []):
+        logging.info(f"found {len(all_docs)} documents")
+
+        for doc in all_docs:
             doc_id = doc["id"]
             doc_title = doc["title"]
             doc_content = doc["content"]
