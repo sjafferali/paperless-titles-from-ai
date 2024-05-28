@@ -35,4 +35,5 @@ OPENAPI_MODEL = os.getenv("OPENAPI_MODEL", "gpt-4-turbo")
 
 PAPERLESS_URL = os.getenv("PAPERLESS_URL", "http://localhost:8000")
 PAPERLESS_API_KEY = os.getenv("PAPERLESS_API_KEY")
+OPENAI_BASEURL = os.getenv("OPENAI_BASEURL")
 TIMEOUT = 10
