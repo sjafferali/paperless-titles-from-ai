@@ -52,6 +52,7 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] [single|a
 | --paperlessurl [URL]  | Yes      | https://paperless.local:8080 | Sets the URL of the paperless API endpoint.                           |
 | --paperlesskey [KEY]  | Yes      |                              | Sets the API key to use when authenticating to paperless.             |
 | --openaimodel [MODEL] | No       | gpt-4-turbo                  | Sets the OpenAI model used to generate title. Full list of supported models available at [models](https://platform.openai.com/docs/models).                         |
+| --openaibaseurl [API Endpoint] | No      |                              | Sets the OpenAI compatible endpoint to generate the title from.                           |
 | --openaikey [KEY]     | Yes      |                              | Sets the OpenAI key used to generate title.                           |
 | --dry                 | No       | False                        | Enables dry run which only prints out the changes that would be made. |
 | --loglevel [LEVEL]    | No       | INFO                         | Loglevel sets the desired loglevel.                                   |
