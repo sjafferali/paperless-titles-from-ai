@@ -77,6 +77,9 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] single (d
 - The default OpenAI model used for generation is gpt-4-turbo. For a slightly less accurate title generation, but drastically reduced cost, use a GPT 3.5 model.
 - The number of characters of the OCR text that is sent varies depending on the model being used. We try to send the maximum number the model supports to get the best generation we can.
 
+# Privacy Concerns
+Although the [OpenAI API privacy document](https://openai.com/enterprise-privacy/) states that data sent to the OpenAI API is not used for training, other OpenAI compatible API endpoints are also supported by this post-consume script, which allows you to use a locally hosted LLM to generate titles.
+
 
 ## Contact, Support and Contributions
 - Create a GitHub issue for bug reports, feature requests, or questions.
