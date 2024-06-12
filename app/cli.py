@@ -5,7 +5,7 @@ import requests
 import sys
 
 from main import set_auth_tokens, make_request, process_single_document, get_single_document
-from cfg import PAPERLESS_URL, PAPERLESS_API_KEY, OPENAI_API_KEY, OPENAPI_MODEL
+from cfg import PAPERLESS_URL, PAPERLESS_API_KEY, OPENAI_API_KEY, OPENAPI_MODEL, OPENAI_BASEURL
 
 
 def get_all_documents(sess, paperless_url):
@@ -43,7 +43,7 @@ def run_single_document(args):
         doc_title = doc_info["title"]
 
         process_single_document(sess, args.document_id, doc_title, doc_contents, args.paperlessurl,
-                                args.openaimodel, args.openaikey, args.dry)
+                                args.openaimodel, args.openaikey, args.openaibaseurl, args.dry)
 
 
 def run_all_documents(args):
@@ -72,7 +72,7 @@ def run_all_documents(args):
 
             logging.info(f"running for document {doc_id}")
             process_single_document(sess, doc_id, doc_title, doc_content, args.paperlessurl,
-                                    args.openaimodel, args.openaikey, args.dry)
+                                    args.openaimodel, args.openaikey, args.openaibaseurl, args.dry)
             logging.info(f"finished running for document {doc_id}")
 
 
@@ -87,6 +87,8 @@ def parse_args(args):
                         help="API key for the paperless instance")
     parser.add_argument('--openaimodel', type=str, default=OPENAPI_MODEL, help="OpenAI model to use")
     parser.add_argument('--openaikey', type=str, default=OPENAI_API_KEY, help="OpenAI key to use")
+    parser.add_argument('--openaibaseurl', type=str, default=OPENAI_BASEURL,
+                        help="Endpoint for OpenAI compatible API to use when generating titles")
     subparsers = parser.add_subparsers()
 
     parser_all = subparsers.add_parser("all", description="Run on all documents")

@@ -52,6 +52,7 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] [single|a
 | --paperlessurl [URL]  | Yes      | https://paperless.local:8080 | Sets the URL of the paperless API endpoint.                           |
 | --paperlesskey [KEY]  | Yes      |                              | Sets the API key to use when authenticating to paperless.             |
 | --openaimodel [MODEL] | No       | gpt-4-turbo                  | Sets the OpenAI model used to generate title. Full list of supported models available at [models](https://platform.openai.com/docs/models).                         |
+| --openaibaseurl [API Endpoint] | No      |                              | Sets the OpenAI compatible endpoint to generate the title from.                           |
 | --openaikey [KEY]     | Yes      |                              | Sets the OpenAI key used to generate title.                           |
 | --dry                 | No       | False                        | Enables dry run which only prints out the changes that would be made. |
 | --loglevel [LEVEL]    | No       | INFO                         | Loglevel sets the desired loglevel.                                   |
@@ -75,6 +76,9 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] single (d
 ## Additional Notes
 - The default OpenAI model used for generation is gpt-4-turbo. For a slightly less accurate title generation, but drastically reduced cost, use a GPT 3.5 model.
 - The number of characters of the OCR text that is sent varies depending on the model being used. We try to send the maximum number the model supports to get the best generation we can.
+
+# Privacy Concerns
+Although the [OpenAI API privacy document](https://openai.com/enterprise-privacy/) states that data sent to the OpenAI API is not used for training, other OpenAI compatible API endpoints are also supported by this post-consume script, which allows you to use a locally hosted LLM to generate titles.
 
 
 ## Contact, Support and Contributions

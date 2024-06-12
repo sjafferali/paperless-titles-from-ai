@@ -8,7 +8,7 @@ from datetime import datetime
 import requests
 from openai import OpenAI
 
-from cfg import (OPENAI_API_KEY, OPENAPI_MODEL, PAPERLESS_API_KEY, PAPERLESS_URL, PROMPT, TIMEOUT)
+from cfg import (OPENAI_API_KEY, OPENAPI_MODEL, PAPERLESS_API_KEY, PAPERLESS_URL, PROMPT, OPENAI_BASEURL, TIMEOUT)
 from helpers import make_request, strtobool, get_character_limit
 
 
@@ -36,14 +36,18 @@ def check_args(doc_pk):
         sys.exit(1)
 
 
-def generate_title(content, openai_model, openai_key):
+def generate_title(content, openai_model, openai_key, openai_base_url):
     character_limit = get_character_limit(openai_model)
     now = datetime.now()
     messages = [
         {"role": "system", "content": PROMPT},
         {"role": "user", "content": now.strftime("%m/%d/%Y") + " ".join(content[:character_limit].split())}
     ]
-    response = query_openai(model=openai_model, messages=messages, openai_key=openai_key, mock=False)
+    response = query_openai(model=openai_model,
+                            messages=messages,
+                            openai_key=openai_key,
+                            openai_base_url=openai_base_url,
+                            mock=False)
     try:
         answer = response.choices[0].message.content
     except:
@@ -51,8 +55,8 @@ def generate_title(content, openai_model, openai_key):
     return answer
 
 
-def query_openai(model, messages, openai_key, **kwargs):
-    client = OpenAI(api_key=openai_key)
+def query_openai(model, messages, openai_key, openai_base_url, **kwargs):
+    client = OpenAI(api_key=openai_key, base_url=openai_base_url)
     args_to_remove = ['mock', 'completion_tokens']
 
     for arg in args_to_remove:
@@ -98,8 +102,9 @@ def process_single_document(
         paperless_url,
         openai_model,
         openai_key,
+        openai_base_url,
         dry_run=False):
-    response = generate_title(doc_contents, openai_model, openai_key)
+    response = generate_title(doc_contents, openai_model, openai_key, openai_base_url)
     if not response:
         logging.error(f"could not generate title for document {doc_pk}")
         return
@@ -141,6 +146,7 @@ def run_for_document(doc_pk):
             PAPERLESS_URL,
             OPENAPI_MODEL,
             OPENAI_API_KEY,
+            OPENAI_BASEURL,
             DRY_RUN)
 
 
