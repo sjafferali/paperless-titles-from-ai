@@ -67,11 +67,14 @@ docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] all [filt
 | Option         | Required | Default | Description                                                                                           |
 |----------------|----------|---------|-------------------------------------------------------------------------------------------------------|
 | --exclude [ID] | No       |         | Excludes the document ID specified from being updated. This argument may be specified multiple times. |
+| --filterstr [FILTERSTRING]   | No       |         | Filters the documents to be updated based on the URL filter string.                                   |
 
 ### To run on a single document
 ```bash
 docker run --rm -v ./app:/app python:3 /app/scripts/backfill.sh [args] single (document_id)
 ```
+
+
 
 ## Additional Notes
 - The default OpenAI model used for generation is gpt-4-turbo. For a slightly less accurate title generation, but drastically reduced cost, use a GPT 3.5 model.
