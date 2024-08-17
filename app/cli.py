@@ -8,8 +8,10 @@ from main import set_auth_tokens, make_request, process_single_document, get_sin
 from cfg import PAPERLESS_URL, PAPERLESS_API_KEY, OPENAI_API_KEY, OPENAPI_MODEL, OPENAI_BASEURL
 
 
-def get_all_documents(sess, paperless_url):
+def get_all_documents(sess, paperless_url, advanced_filter=None):
     url = paperless_url + "/api/documents/"
+    if advanced_filter:
+        url += f"?{advanced_filter}"
     response = make_request(sess, url, "GET")
     if not response or not isinstance(response, dict):
         logging.error("could not retrieve documents")
@@ -54,7 +56,7 @@ def run_all_documents(args):
     with requests.Session() as sess:
         set_auth_tokens(sess, args.paperlesskey)
 
-        all_docs = get_all_documents(sess, args.paperlessurl)
+        all_docs = get_all_documents(sess, args.paperlessurl, args.filterstr)
         if not all_docs or not isinstance(all_docs, list):
             logging.error("could not retrieve documents")
             return
@@ -93,6 +95,7 @@ def parse_args(args):
 
     parser_all = subparsers.add_parser("all", description="Run on all documents")
     parser_all.add_argument('--exclude', action='append', type=int, help="Document ID to skip")
+    parser_all.add_argument('--filterstr', type=str, help='Pass in url query parameters to filter document filter request by')
     parser_all.set_defaults(func=run_all_documents)
 
     parser_single = subparsers.add_parser("single", description="Run on a single document")
