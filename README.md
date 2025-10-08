@@ -16,7 +16,7 @@ git clone https://github.com/sjafferali/paperless-titles-from-ai.git
 
 ### Create .env file
 ```bash
-cp -av paperless-titles-from-ai/.env.example paperless-titles-from-ai/.env
+cp -av paperless-titles-from-ai/.env_example paperless-titles-from-ai/.env
 # Update .env file with the correct values
 ```
 
