@@ -35,13 +35,33 @@ def check_args(doc_pk):
         logging.error("Missing TIMEOUT")
         sys.exit(1)
 
+def truncate_text(text, model_limit=None):
+    max_chars = os.getenv('MAX_OCR_CHARS')
+    # If max_chars is set and valid, convert to int
+    if max_chars is not None:
+        try:
+            max_chars = int(max_chars)
+            if max_chars > 0:
+                # If model_limit is provided, use the smaller of the two limits
+                if model_limit is not None:
+                    max_chars = min(max_chars, model_limit)
+                return text[:max_chars] + "..."
+        except ValueError:
+            # If MAX_OCR_CHARS cannot be converted to int, return full text
+            pass
+    # If MAX_OCR_CHARS is not set but model_limit is, use model_limit
+    elif model_limit is not None:
+        return text[:model_limit] + "..."
+    return text  # Return full text if no valid limits are set
 
 def generate_title(content, openai_model, openai_key, openai_base_url):
     character_limit = get_character_limit(openai_model)
     now = datetime.now()
+    truncated_content = truncate_text(content, model_limit=character_limit)
     messages = [
         {"role": "system", "content": PROMPT},
         {"role": "user", "content": now.strftime("%m/%d/%Y") + " ".join(content[:character_limit].split())}
+        {"role": "user", "content": now.strftime("%m/%d/%Y") + " ".join(truncated_content.split())}
     ]
     response = query_openai(model=openai_model,
                             messages=messages,
